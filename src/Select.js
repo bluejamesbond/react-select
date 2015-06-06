@@ -26,6 +26,8 @@ var Select = React.createClass({
 		searchPromptText: React.PropTypes.string,  // label to prompt for search input
 		name: React.PropTypes.string,              // field name, for hidden <input /> tag
 		onChange: React.PropTypes.func,            // onChange handler: function(newValue) {}
+		onAdd: React.PropTypes.func, 	           // onAdd handler: function(newValue) {}
+		onRemove: React.PropTypes.func,            // onRemove handler: function(oldValue) {}
 		onFocus: React.PropTypes.func,             // onFocus handler: function(event) {}
 		onBlur: React.PropTypes.func,              // onBlur handler: function(event) {}
 		className: React.PropTypes.string,         // className for the outer element
@@ -63,6 +65,8 @@ var Select = React.createClass({
 			searchPromptText: 'Type to search',
 			name: undefined,
 			onChange: undefined,
+			onAdd: undefined,
+			onRemove: undefined,
 			className: undefined,
 			matchPos: 'any',
 			matchProp: 'any',
@@ -268,16 +272,33 @@ var Select = React.createClass({
 
 	addValue: function(value) {
 		this.setValue(this.state.values.concat(value));
+		this.fireAddEvent(value);
 	},
 
 	popValue: function() {
+		var lastValue = this.state.values[this.state.values.length - 1];
 		this.setValue(this.state.values.slice(0, this.state.values.length - 1));
+		this.fireRemoveEvent(lastValue);
+	},
+
+	fireAddEvent: function(value) {
+		if (this.props.onAdd){
+			this.props.onAdd(value.value, value);
+		}
+	},
+
+	fireRemoveEvent: function(value) {
+        	if (this.props.onRemove){
+			this.props.onRemove(value.value, value);
+		}
 	},
 
 	removeValue: function(valueToRemove) {
 		this.setValue(this.state.values.filter(function(value) {
 			return value !== valueToRemove;
 		}));
+
+		this.fireRemoveEvent(valueToRemove);
 	},
 
 	clearValue: function(event) {
@@ -286,6 +307,8 @@ var Select = React.createClass({
 		if (event && event.type === 'mousedown' && event.button !== 0) {
 			return;
 		}
+
+		this.state.values.map(this.fireRemoveEvent);
 		this.setValue(null);
 	},
 
