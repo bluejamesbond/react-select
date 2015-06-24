@@ -288,7 +288,7 @@ var Select = React.createClass({
 	},
 
 	fireRemoveEvent: function(value) {
-        	if (this.props.onRemove){
+        	if (this.props.onRemove && value){
 			this.props.onRemove(value.value, value);
 		}
 	},
